@@ -1,0 +1,53 @@
+name: Fetch App Review
+on:
+  schedule:
+    - cron: "15 */6 * * *"
+    
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: current
+      - uses: actions/checkout@v2
+        with:
+          repository: ZhgChgLi/ZReviewsBot
+          path: main
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          working-directory: main
+      - run: |
+            FASTLANE_SESSION=`cat ${{ github.workspace }}/current/config/FASTLANE_SESSION`
+            echo "FASTLANE_SESSION=$FASTLANE_SESSION" >> $GITHUB_ENV
+            
+            mkdir -p ${{ github.workspace }}/main/lib/.cache/
+            if [ -f ${{ github.workspace }}/current/.cache/.iOSLastModified ]; then
+              cp ${{ github.workspace }}/current/.cache/.iOSLastModified ${{ github.workspace }}/main/lib/.cache/.iOSLastModified
+            fi
+            if [ -f ${{ github.workspace }}/current/.cache/.androidLastModified ]; then
+              cp ${{ github.workspace }}/current/.cache/.androidLastModified ${{ github.workspace }}/main/lib/.cache/.androidLastModified
+            fi
+      - run: bundle exec ruby bin/ZReviewsBot -a ${{ github.workspace }}/current/config/config.yaml
+        working-directory: main
+      - run: bundle exec ruby bin/ZReviewsBot -i ${{ github.workspace }}/current/config/config.yaml
+        working-directory: main
+        env:
+            FASTLANE_SESSION: ${{ env.FASTLANE_SESSION }}
+      - working-directory: current
+        run: |
+            git config --global user.name 'ZReviewsBot'
+            git config --global user.email 'service@zhgchg.li'
+            if [ -f ${{ github.workspace }}/main/lib/.cache/.iOSLastModified ]; then
+              cp ${{ github.workspace }}/main/lib/.cache/.iOSLastModified ${{ github.workspace }}/current/.cache/.iOSLastModified
+              git add .cache/.iOSLastModified
+            fi
+            if [ -f ${{ github.workspace }}/main/lib/.cache/.androidLastModified ]; then
+              cp ${{ github.workspace }}/main/lib/.cache/.androidLastModified ${{ github.workspace }}/current/.cache/.androidLastModified
+              git add .cache/.androidLastModified
+            fi
+            if [ -n "$(git status --porcelain)" ]; then
+              git commit -m "Update ZReviewsBot LastModified"
+              git push origin HEAD:main -f
+            fi
