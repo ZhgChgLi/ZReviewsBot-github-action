@@ -1,7 +1,9 @@
 # ZReviewsBot-github-action
 
-For security reason, please do not fork origin repo, use create private repo and import code instead.
+- [iOS 評價撈取失敗處理](https://github.com/ZhgChgLi/ZReviewsBot/blob/main/doc/iOSSessionInvaild.md)
 
-## Thanks for choosing  [ZReviewsBot](https://github.com/ZhgChgLi/ZReviewsBot)
 
-![[Buy Me A Coffe](https://www.buymeacoffee.com/zhgchgli)](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)
+
+## Powered by  [ZReviewsBot](https://github.com/ZhgChgLi/ZReviewsBot)
+
+[![Buy Me A Coffe](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/zhgchgli)
