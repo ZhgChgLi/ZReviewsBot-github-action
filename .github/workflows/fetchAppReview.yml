@@ -18,6 +18,10 @@ jobs:
         with:
           bundler-cache: true
           working-directory: main
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          working-directory: current
       - run: |
             FASTLANE_SESSION=`cat ${{ github.workspace }}/current/config/FASTLANE_SESSION`
             echo "FASTLANE_SESSION=$FASTLANE_SESSION" >> $GITHUB_ENV
@@ -31,6 +35,10 @@ jobs:
             fi
       - run: bundle exec ruby bin/ZReviewsBot -a ${{ github.workspace }}/current/config/config.yaml
         working-directory: main
+      - run: bundle exec ruby renew_FASTLANE_SESSION.rb
+        working-directory: current
+        env:
+            FASTLANE_SESSION: ${{ env.FASTLANE_SESSION }}
       - run: bundle exec ruby bin/ZReviewsBot -i ${{ github.workspace }}/current/config/config.yaml
         working-directory: main
         env:
@@ -47,6 +55,7 @@ jobs:
               cp ${{ github.workspace }}/main/lib/.cache/.androidLastModified ${{ github.workspace }}/current/.cache/.androidLastModified
               git add .cache/.androidLastModified
             fi
+            git add config/FASTLANE_SESSION
             if [ -n "$(git status --porcelain)" ]; then
               git commit -m "Update ZReviewsBot LastModified"
               git push origin HEAD:main -f
